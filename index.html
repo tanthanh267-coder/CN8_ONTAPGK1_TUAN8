@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nội Dung Ôn Tập Giữa Kì 1 - Công Nghệ 8 (2026-2027)</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- React & ReactDOM CDN -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+    <!-- Babel standalone for JSX -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        // --- DATA FROM FILE ---
+        const MULTIPLE_CHOICE_DATA = [
+            {
+                id: 1,
+                question: "Theo TCVN 7285:2003, khổ giấy A4 có kích thước tiêu chuẩn là bao nhiêu?",
+                options: ["1189 x 841 mm", "841 x 594 mm", "420 x 297 mm", "297 x 210 mm"],
+                answer: 3,
+                explanation: "Khổ giấy A4 tiêu chuẩn theo TCVN 7285:2003 có kích thước là 297 x 210 mm."
+            },
+            {
+                id: 2,
+                question: "Khung tên trên bản vẽ kỹ thuật được đặt ở vị trí nào?",
+                options: ["Góc trên bên trái", "Góc trên bên phải", "Góc dưới bên trái", "Góc dưới bên phải"],
+                answer: 3,
+                explanation: "Khung tên luôn được đặt ở góc dưới bên phải của bản vẽ kỹ thuật."
+            },
+            {
+                id: 3,
+                question: "Con số kích thước ghi trên bản vẽ kỹ thuật thể hiện giá trị nào?",
+                options: ["Kích thước đo được sau khi thu nhỏ", "Kích thước thực của vật thể", "Kích thước đã nhân với tỉ lệ phóng to", "Kích thước tùy thuộc khổ giấy"],
+                answer: 1,
+                explanation: "Con số kích thước ghi trên bản vẽ luôn thể hiện giá trị kích thước thực của vật thể, không phụ thuộc vào tỉ lệ vẽ."
+            },
+            {
+                id: 4,
+                question: "Loại nét vẽ nào được dùng để biểu diễn đường bao thấy và cạnh thấy của vật thể?",
+                options: ["Nét liền mảnh", "Nét đứt mảnh", "Nét liền đậm", "Nét gạch dài - chấm - mảnh"],
+                answer: 2,
+                explanation: "Nét liền đậm dùng để vẽ đường bao thấy và cạnh thấy của vật thể."
+            },
+            {
+                id: 5,
+                question: "Một vật thể có chiều dài thực 200 mm, khi biểu diễn trên bản vẽ với tỉ lệ 1:2 thì chiều dài đo được trên bản vẽ là bao nhiêu?",
+                options: ["400 mm", "200 mm", "100 mm", "50 mm"],
+                answer: 2,
+                explanation: "Tỉ lệ 1:2 là tỉ lệ thu nhỏ một nửa, nên kích thước đo trên bản vẽ là 200 / 2 = 100 mm."
+            },
+            {
+                id: 6,
+                question: "Để chỉ kích thước đường kính của đường tròn, kí hiệu nào được viết trước con số kích thước?",
+                options: ["R", "Ø", "d", "H"],
+                answer: 1,
+                explanation: "Kí hiệu Ø (phi) được viết trước con số kích thước để chỉ đường kính của đường tròn (R dùng cho bán kính)."
+            },
+            {
+                id: 7,
+                question: "Nét gạch dài - chấm - mảnh trong bản vẽ kỹ thuật dùng để biểu diễn?",
+                options: ["Đường bao khuất", "Đường kích thước", "Đường tâm, trục đối xứng", "Đường gióng"],
+                answer: 2,
+                explanation: "Nét gạch dài - chấm - mảnh được quy định dùng để vẽ đường tâm và trục đối xứng."
+            },
+            {
+                id: 8,
+                question: "Đơn vị đo kích thước chiều dài mặc định trên bản vẽ kỹ thuật là:",
+                options: ["Centimét (cm)", "Milimét (mm)", "Mét (m)", "Decimét (dm)"],
+                answer: 1,
+                explanation: "Đơn vị đo độ dài mặc định trên bản vẽ kỹ thuật là milimét (mm) và không cần ghi chữ mm sau con số kích thước."
+            },
+            {
+                id: 9,
+                question: "Hướng chiếu từ trước tới thu được hình chiếu nào?",
+                options: ["Hình chiếu đứng", "Hình chiếu bằng", "Hình chiếu cạnh", "Hình chiếu phối cảnh"],
+                answer: 0,
+                explanation: "Hướng chiếu từ trước tới thu được hình chiếu đứng."
+            },
+            {
+                id: 10,
+                question: "Vị trí của hình chiếu bằng trên bản vẽ kỹ thuật được bố trí ở đâu?",
+                options: ["Bên phải hình chiếu đứng", "Bên trái hình chiếu đứng", "Phía dưới hình chiếu đứng", "Phía trên hình chiếu đứng"],
+                answer: 2,
+                explanation: "Theo phương pháp chiếu góc thứ nhất, hình chiếu bằng đặt ở phía dưới hình chiếu đứng."
+            },
+            {
+                id: 11,
+                question: "Cho hình trụ có đường kính d và chiều cao h. Hình chiếu đứng và hình chiếu bằng của hình trụ lần lượt là:",
+                options: ["Hình chữ nhật và hình tròn", "Hình tròn và hình chữ nhật", "Hình chữ nhật và hình chữ nhật", "Hình tam giác và hình tròn"],
+                answer: 0,
+                explanation: "Hình chiếu đứng của hình trụ nhìn từ trước là hình chữ nhật (d x h), hình chiếu bằng nhìn từ trên xuống là hình tròn (đường kính d)."
+            },
+            {
+                id: 12,
+                question: "Khối hình học nào có cả 3 hình chiếu vuông góc đều là hình tròn bằng nhau?",
+                options: ["Hình trụ", "Hình nón", "Hình cầu", "Hình chóp"],
+                answer: 2,
+                explanation: "Hình cầu khi nhìn từ bất kì hướng nào cũng thu được hình chiếu là hình tròn có đường kính d."
+            },
+            {
+                id: 13,
+                question: "Bản vẽ chi tiết được sử dụng để làm gì?",
+                options: ["Lắp ráp các chi tiết thành sản phẩm hoàn chỉnh", "Chế tạo và kiểm tra một chi tiết máy", "Biểu diễn sơ đồ nhà ở", "Thiết kế mạch điện điều khiển"],
+                answer: 1,
+                explanation: "Bản vẽ chi tiết chứa đầy đủ thông tin về hình dáng, kích thước, yêu cầu kỹ thuật để chế tạo và kiểm tra một chi tiết máy."
+            },
+            {
+                id: 14,
+                question: "Thành phần nào sau đây KHÔNG thuộc nội dung bản vẽ chi tiết?",
+                options: ["Hình biểu diễn", "Bảng kê chi tiết", "Kích thước", "Yêu cầu kỹ thuật"],
+                answer: 1,
+                explanation: "Bảng kê chi tiết thuộc nội dung của Bản vẽ lắp, không thuộc bản vẽ chi tiết."
+            },
+            {
+                id: 15,
+                question: "Thông tin về tên gọi chi tiết, vật liệu chế tạo, tỉ lệ bản vẽ nằm ở đâu?",
+                options: ["Khung tên", "Bảng kích thước", "Phần yêu cầu kỹ thuật", "Hình chiếu đứng"],
+                answer: 0,
+                explanation: "Các thông tin như tên gọi chi tiết, vật liệu, tỉ lệ, tên người vẽ/kiểm tra... nằm trong khung tên."
+            },
+            {
+                id: 16,
+                question: "Trình tự đọc bản vẽ chi tiết chuẩn gồm 4 bước theo thứ tự nào?",
+                options: [
+                    "Hình biểu diễn -> Khung tên -> Kích thước -> Yêu cầu kỹ thuật",
+                    "Khung tên -> Kích thước -> Hình biểu diễn -> Yêu cầu kỹ thuật",
+                    "Khung tên -> Hình biểu diễn -> Kích thước -> Yêu cầu kỹ thuật",
+                    "Yêu cầu kỹ thuật -> Khung tên -> Hình biểu diễn -> Kích thước"
+                ],
+                answer: 2,
+                explanation: "Trình tự chuẩn 4 bước đọc bản vẽ chi tiết là: 1. Khung tên -> 2. Hình biểu diễn -> 3. Kích thước -> 4. Yêu cầu kỹ thuật."
+            }
+        ];
+
+        const TRUE_FALSE_DATA = [
+            {
+                id: 17,
+                title: "Câu 17 (Bài 1 - Thông hiểu)",
+                context: "Khi thực hiện lập bản vẽ kỹ thuật trên khổ giấy A4 theo TCVN, các học sinh đưa ra các ý kiến sau:",
+                items: [
+                    { key: "a", text: "Khổ giấy A4 (297 x 210 mm) có diện tích bằng một nửa khổ giấy A3 (420 x 297 mm).", correct: true, exp: "Đúng. Diện tích A4 = 1/2 diện tích A3." },
+                    { key: "b", text: "Vẽ hình với tỉ lệ phóng to 2:1 thì con số kích thước ghi trên bản vẽ sẽ gấp đôi kích thước thực.", correct: false, exp: "Sai. Con số kích thước ghi trên bản vẽ LUÔN LÀ kích thước thực của vật thể." },
+                    { key: "c", text: "Đường bao thấy được vẽ bằng nét liền đậm, rộng gấp 2 lần nét liền mảnh dùng làm đường gióng.", correct: true, exp: "Đúng. Chiều rộng nét mảnh = 1/2 chiều rộng nét đậm." },
+                    { key: "d", text: "Đường tâm của hình tròn được thể hiện bằng nét đứt mảnh.", correct: false, exp: "Sai. Đường tâm được thể hiện bằng nét gạch dài - chấm - mảnh." }
+                ]
+            },
+            {
+                id: 18,
+                title: "Câu 18 (Bài 2 - Thông hiểu)",
+                context: "Trong các phát biểu về phương pháp chiếu góc thứ nhất và vị trí các hình chiếu, cho biết các nhận định sau:",
+                items: [
+                    { key: "a", text: "Hình chiếu đứng được thu từ hướng chiếu từ trước tới, đặt ở vị trí chính diện.", correct: true, exp: "Đúng." },
+                    { key: "b", text: "Hình chiếu cạnh được đặt ở phía bên trái hình chiếu đứng.", correct: false, exp: "Sai. Hình chiếu cạnh được đặt ở bên PHẢI hình chiếu đứng." },
+                    { key: "c", text: "Hình chiếu bằng thể hiện kích thước chiều rộng và chiều dài của vật thể.", correct: true, exp: "Đúng. Hình chiếu bằng thể hiện chiều rộng và chiều dài." },
+                    { key: "d", text: "Để biểu diễn hoàn chỉnh hình dạng của khối tròn xoay đơn giản bắt buộc phải vẽ đủ 3 hình chiếu.", correct: false, exp: "Sai. Với khối tròn xoay đơn giản chỉ cần 2 hình chiếu là đủ." }
+                ]
+            },
+            {
+                id: 19,
+                title: "Câu 19 (Bài 3 - Thông hiểu)",
+                context: "Cho các nhận định về nội dung và phương pháp biểu diễn trên bản vẽ chi tiết:",
+                items: [
+                    { key: "a", text: "Bản vẽ chi tiết là tài liệu kỹ thuật chỉ dùng trong sản xuất chế tạo, không dùng để kiểm tra sản phẩm.", correct: false, exp: "Sai. Bản vẽ chi tiết dùng cho cả chế tạo VÀ kiểm tra chi tiết máy." },
+                    { key: "b", text: "Hình cắt trên bản vẽ chi tiết biểu diễn rõ ràng hình dạng cấu tạo bên trong của chi tiết.", correct: true, exp: "Đúng." },
+                    { key: "c", text: "Yêu cầu kỹ thuật bao gồm các chỉ dẫn về gia công, xử lý bề mặt như 'Làm tù cạnh', 'Mạ kẽm'.", correct: true, exp: "Đúng." },
+                    { key: "d", text: "Kích thước trên bản vẽ chi tiết chỉ ghi kích thước chung, không cần ghi kích thước các phần tử.", correct: false, exp: "Sai. Bản vẽ chi tiết cần ghi cả kích thước chung và kích thước các phần tử." }
+                ]
+            },
+            {
+                id: 20,
+                title: "Câu 20 (Bài 1 - Thông hiểu)",
+                context: "Xét quy tắc ghi kích thước và nét vẽ tiêu chuẩn trên bản vẽ kỹ thuật:",
+                items: [
+                    { key: "a", text: "Mọi con số kích thước chiều dài ghi trên bản vẽ đều mặc định đơn vị là mm và không ghi chữ mm.", correct: true, exp: "Đúng. Đơn vị mặc định là mm." },
+                    { key: "b", text: "Kí hiệu R40 thể hiện đường kính của đường tròn bằng 40 mm.", correct: false, exp: "Sai. R40 thể hiện BÁN KÍNH bằng 40 mm (đường kính là Ø80)." },
+                    { key: "c", text: "Nét đứt mảnh được dùng để biểu diễn đường bao khuất, cạnh khuất của vật thể.", correct: true, exp: "Đúng." },
+                    { key: "d", text: "Khung bản vẽ cách đều 4 mép giấy 10 mm.", correct: false, exp: "Sai. Khung bản vẽ cách mép trái 20mm (để đóng xén/đóng sổ) và 3 mép còn lại cách 10mm (hoặc 5mm tùy chuẩn)." }
+                ]
+            },
+            {
+                id: 21,
+                title: "Câu 21 (Bài 2 - Thông hiểu)",
+                context: "Xét đặc điểm hình chiếu của các khối hình học thường gặp:",
+                items: [
+                    { key: "a", text: "Hình chóp tứ giác đều có hình chiếu đứng và hình chiếu cạnh là hai hình tam giác cân bằng nhau.", correct: true, exp: "Đúng." },
+                    { key: "b", text: "Hình cầu nhìn từ bất kỳ hướng chiếu vuông góc nào cũng thu được hình chiếu là hình tròn đường kính d.", correct: true, exp: "Đúng." },
+                    { key: "c", text: "Hình lăng trụ tam giác đều có hình chiếu bằng là hình chữ nhật.", correct: false, exp: "Sai. Hình chiếu bằng của hình lăng trụ tam giác đều (khi đáy song song mặt phẳng chiếu bằng) là hình tam giác." },
+                    { key: "d", text: "Hình nón có hình chiếu bằng là hình tròn có đường gạch chéo ở giữa.", correct: false, exp: "Sai. Hình chiếu bằng của hình nón là hình tròn có tâm (đường gạch dài - chấm - mảnh), không phải gạch chéo." }
+                ]
+            },
+            {
+                id: 22,
+                title: "Câu 22 (Bài 3 - Thông hiểu)",
+                context: "Xét trình tự đọc bản vẽ chi tiết và các thông tin ghi trong khung tên:",
+                items: [
+                    { key: "a", text: "Bước đầu tiên khi đọc bản vẽ chi tiết là phân tích hình biểu diễn để hiểu cấu tạo không gian.", correct: false, exp: "Sai. Bước 1 luôn là đọc Khung tên." },
+                    { key: "b", text: "Tên gọi chi tiết, vật liệu chế tạo và tỉ lệ vẽ được ghi ở phần Yêu cầu kỹ thuật.", correct: false, exp: "Sai. Các thông tin này ghi ở Khung tên." },
+                    { key: "c", text: "Bước cuối cùng trong trình tự đọc bản vẽ chi tiết là đọc Yêu cầu kỹ thuật.", correct: true, exp: "Đúng. Trình tự: Khung tên -> Hình biểu diễn -> Kích thước -> Yêu cầu kỹ thuật." },
+                    { key: "d", text: "Đọc kích thước giúp xác định độ lớn chung của chi tiết và kích thước các phần tử cấu tạo.", correct: true, exp: "Đúng." }
+                ]
+            }
+        ];
+
+        const ESSAY_DATA = [
+            {
+                id: 1,
+                title: "Câu 1: Quy tắc sử dụng 4 loại nét vẽ cơ bản (1.0 điểm)",
+                content: [
+                    { label: "Nét liền đậm", detail: "Dùng để vẽ đường bao thấy, cạnh thấy. (Chiều rộng nét đậm chọn s = 0.5 mm)" },
+                    { label: "Nét liền mảnh", detail: "Dùng để vẽ đường kích thước, đường gióng." },
+                    { label: "Nét đứt mảnh", detail: "Dùng để vẽ đường bao khuất, cạnh khuất." },
+                    { label: "Nét gạch dài - chấm - mảnh", detail: "Dùng để vẽ đường tâm, trục đối xứng." }
+                ],
+                note: "Lưu ý: Chiều rộng nét mảnh = 1/2 chiều rộng nét đậm (chọn s = 0.5 mm)."
+            },
+            {
+                id: 2,
+                title: "Câu 2: So sánh 3 hình chiếu vuông góc theo PP chiếu góc thứ nhất (2.0 điểm)",
+                table: [
+                    { name: "Hình chiếu đứng", direction: "Từ trước tới", position: "Đặt ở vị trí chính diện (góc trên bên trái bản vẽ)", dimensions: "Chiều rộng và chiều cao" },
+                    { name: "Hình chiếu bằng", direction: "Từ trên xuống", position: "Đặt ở bên dưới hình chiếu đứng", dimensions: "Chiều rộng và chiều dài" },
+                    { name: "Hình chiếu cạnh", direction: "Từ trái sang", position: "Đặt ở bên phải hình chiếu đứng", dimensions: "Chiều cao và chiều dài" }
+                ]
+            },
+            {
+                id: 3,
+                title: "Câu 3: Quy trình vẽ & Kích thước hình chiếu khối hộp chữ nhật (1.5 điểm)",
+                subtitle: "Đề bài: Cho vật thể hình hộp chữ nhật có chiều dài L = 60 mm, chiều rộng W = 40 mm, chiều cao H = 30 mm.",
+                partA: {
+                    title: "a) Quy trình 4 bước vẽ hình chiếu vuông góc:",
+                    steps: [
+                        "Bước 1: Phân tích vật thể thành khối hình hộp chữ nhật.",
+                        "Bước 2: Chọn 3 hướng chiếu (từ trước, từ trên, từ trái).",
+                        "Bước 3: Vẽ hình chiếu bằng nét liền mảnh.",
+                        "Bước 4: Tô đậm nét thấy, ghi kích thước thực (L=60, W=40, H=30), hoàn thiện bản vẽ."
+                    ]
+                },
+                partB: {
+                    title: "b) Hình dạng và kích thước các hình chiếu thu được:",
+                    items: [
+                        "Hình chiếu đứng: Hình chữ nhật kích thước 60 x 30 mm.",
+                        "Hình chiếu bằng: Hình chữ nhật kích thước 60 x 40 mm.",
+                        "Hình chiếu cạnh: Hình chữ nhật kích thước 40 x 30 mm."
+                    ]
+                }
+            },
+            {
+                id: 4,
+                title: "Câu 4: Trình tự 4 bước đọc bản vẽ chi tiết 'Ống lót' (1.5 điểm)",
+                subtitle: "Đề bài: Cho bản vẽ chi tiết 'Ống lót' (bằng đồng, tỉ lệ 1:1, Øngoài 28, Øtrong 20, chiều dài L=30 mm, yêu cầu kỹ thuật: 'Làm tù cạnh').",
+                steps: [
+                    { step: "Bước 1 (Khung tên)", content: "Tên gọi chi tiết: Ống lót; Vật liệu: Đồng; Tỉ lệ: 1:1." },
+                    { step: "Bước 2 (Hình biểu diễn)", content: "Gồm các hình chiếu: Hình chiếu đứng, hình chiếu bằng và các hình biểu diễn khác (nếu có) để diễn tả rõ cấu tạo bên trong và bên ngoài." },
+                    { step: "Bước 3 (Kích thước)", content: "Kích thước chung (Đường kính ngoài Ø28 mm, chiều dài 30 mm) và kích thước các thành phần (Đường kính ngoài Ø28 mm, đường kính trong Ø20 mm, chiều dài 30 mm)." },
+                    { step: "Bước 4 (Yêu cầu kỹ thuật)", content: "Chỉ dẫn về gia công: Làm tù cạnh." }
+                ]
+            },
+            {
+                id: 5,
+                title: "Câu 5: Trình tự 4 bước đọc bản vẽ chi tiết 'Gối đỡ' (1.5 điểm)",
+                subtitle: "Đề bài: Đọc bản vẽ chi tiết 'Gối đỡ' (Tỉ lệ 1:1, làm bằng thép, dài 50, rộng 25, cao 25, rãnh 30, dày 10, lỗ Ø20, YCKT: Làm tù cạnh, Mạ kẽm).",
+                steps: [
+                    { step: "Bước 1 (Khung tên)", content: "Tên gọi chi tiết: Gối đỡ; Vật liệu: Thép; Tỉ lệ: 1:1." },
+                    { step: "Bước 2 (Hình biểu diễn)", content: "Gồm các hình chiếu: Hình chiếu đứng, hình chiếu bằng và các hình biểu diễn khác (nếu có) để diễn tả rõ cấu tạo bên trong và bên ngoài." },
+                    { step: "Bước 3 (Kích thước)", content: "Kích thước chung (dài 50 mm, rộng 25 mm, cao 25 mm) và kích thước các thành phần (rãnh 30 mm, dày 10 mm, lỗ đường kính Ø20)." },
+                    { step: "Bước 4 (Yêu cầu kỹ thuật)", content: "Chỉ dẫn gia công (Làm tù cạnh), xử lý bề mặt (Mạ kẽm)." }
+                ]
+            },
+            {
+                id: 6,
+                title: "Câu 6: Hình chiếu của khối hình trụ (1.5 điểm)",
+                subtitle: "Đề bài: Cho vật thể khối hình trụ có đường kính đáy d = 40 mm và chiều cao h = 50 mm.",
+                partA: {
+                    title: "a) Hình dạng và kích thước các hình chiếu:",
+                    items: [
+                        "Hình chiếu đứng: Hình chữ nhật kích thước chiều rộng 40 mm (đường kính d), chiều cao 50 mm (chiều cao h).",
+                        "Hình chiếu bằng: Hình tròn đường kính d = 40 mm (có đường gạch dài - chấm - mảnh làm tâm)."
+                    ]
+                },
+                partB: {
+                    title: "b) Hướng dẫn vẽ bản vẽ:",
+                    items: [
+                        "Vẽ hình chiếu đứng là hình chữ nhật 40mm x 50mm bằng nét liền đậm.",
+                        "Vẽ hình chiếu bằng là đường tròn bán kính R20mm có trục tâm bằng nét gạch dài - chấm - mảnh."
+                    ]
+                }
+            }
+        ];
+
+        // --- MAIN APP COMPONENT ---
+        function App() {
+            const [activeTab, setActiveTab] = useState('quiz1'); // quiz1, quiz2, essay
+            
+            // Multiple Choice State
+            const [mcAnswers, setMcAnswers] = useState({});
+            const [mcSubmitted, setMcSubmitted] = useState(false);
+
+            // True/False State
+            const [tfAnswers, setTfAnswers] = useState({}); // { '17_a': true, '17_b': false }
+            const [tfSubmitted, setTfSubmitted] = useState(false);
+
+            const handleMcSelect = (qId, optionIdx) => {
+                if (mcSubmitted) return;
+                setMcAnswers(prev => ({ ...prev, [qId]: optionIdx }));
+            };
+
+            const handleTfSelect = (qId, itemKey, value) => {
+                if (tfSubmitted) return;
+                setTfAnswers(prev => ({ ...prev, [`${qId}_${itemKey}`]: value }));
+            };
+
+            const calculateMcScore = () => {
+                let score = 0;
+                MULTIPLE_CHOICE_DATA.forEach(q => {
+                    if (mcAnswers[q.id] === q.answer) score += 0.25;
+                });
+                return score;
+            };
+
+            const calculateTfScore = () => {
+                let totalScore = 0;
+                TRUE_FALSE_DATA.forEach(q => {
+                    let correctCount = 0;
+                    q.items.forEach(item => {
+                        if (tfAnswers[`${q.id}_${item.key}`] === item.correct) {
+                            correctCount++;
+                        }
+                    });
+                    if (correctCount === 4) totalScore += 1.0;
+                    else if (correctCount === 3) totalScore += 0.5;
+                    else if (correctCount === 2) totalScore += 0.25;
+                    else if (correctCount === 1) totalScore += 0.1;
+                });
+                return totalScore;
+            };
+
+            return (
+                <div className="min-h-screen flex flex-col">
+                    {/* Header */}
+                    <header className="bg-indigo-700 text-white shadow-lg sticky top-0 z-50">
+                        <div className="max-w-6xl mx-auto px-4 py-4 flex flex-col md:flex-row justify-between items-center gap-3">
+                            <div>
+                                <h1 className="text-xl md:text-2xl font-bold tracking-tight">ÔN TẬP GIỮA KÌ 1 - CÔNG NGHỆ 8</h1>
+                                <p className="text-indigo-200 text-xs md:text-sm">Năm học 2026 - 2027 | THCS Nguyễn Hữu Thọ</p>
+                            </div>
+                            <div className="flex bg-indigo-800 p-1 rounded-lg text-sm font-medium">
+                                <button 
+                                    onClick={() => setActiveTab('quiz1')}
+                                    className={`px-3 py-1.5 rounded-md transition ${activeTab === 'quiz1' ? 'bg-white text-indigo-800 shadow' : 'text-indigo-100 hover:text-white'}`}
+                                >
+                                    Phần I: Trắc Nghiệm (16 câu)
+                                </button>
+                                <button 
+                                    onClick={() => setActiveTab('quiz2')}
+                                    className={`px-3 py-1.5 rounded-md transition ${activeTab === 'quiz2' ? 'bg-white text-indigo-800 shadow' : 'text-indigo-100 hover:text-white'}`}
+                                >
+                                    Phần II: Đúng / Sai (6 câu)
+                                </button>
+                                <button 
+                                    onClick={() => setActiveTab('essay')}
+                                    className={`px-3 py-1.5 rounded-md transition ${activeTab === 'essay' ? 'bg-white text-indigo-800 shadow' : 'text-indigo-100 hover:text-white'}`}
+                                >
+                                    Phần Tự Luận
+                                </button>
+                            </div>
+                        </div>
+                    </header>
+
+                    {/* Main Body */}
+                    <main className="flex-1 max-w-5xl w-full mx-auto p-4 md:p-6">
+                        
+                        {/* TAB 1: MULTIPLE CHOICE */}
+                        {activeTab === 'quiz1' && (
+                            <div className="space-y-6">
+                                <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-5 flex flex-col sm:flex-row justify-between items-center gap-4">
+                                    <div>
+                                        <h2 className="text-lg font-bold text-slate-800">Phần I: Câu Hỏi Trắc Nghiệm Nhiều Lựa Chọn</h2>
+                                        <p className="text-slate-500 text-sm"> Chọn 01 phương án đúng nhất cho mỗi câu. (16 câu - 4.0 điểm)</p>
+                                    </div>
+                                    {mcSubmitted ? (
+                                        <div className="text-right bg-indigo-50 px-4 py-2 rounded-lg border border-indigo-100">
+                                            <span className="text-xs text-indigo-600 font-semibold block uppercase">Điểm của bạn</span>
+                                            <span className="text-2xl font-black text-indigo-700">{calculateMcScore().toFixed(2)} / 4.0</span>
+                                        </div>
+                                    ) : (
+                                        <button 
+                                            onClick={() => setMcSubmitted(true)}
+                                            className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-5 py-2.5 rounded-lg shadow transition"
+                                        >
+                                            Nộp bài Phần I
+                                        </button>
+                                    )}
+                                </div>
+
+                                <div className="space-y-4">
+                                    {MULTIPLE_CHOICE_DATA.map((q, idx) => (
+                                        <div key={q.id} className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
+                                            <div className="font-semibold text-slate-800 text-base mb-3">
+                                                <span className="text-indigo-600 font-bold mr-2">Câu {idx + 1}:</span>
+                                                {q.question}
+                                            </div>
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
+                                                {q.options.map((opt, optIdx) => {
+                                                    const isSelected = mcAnswers[q.id] === optIdx;
+                                                    const isCorrect = q.answer === optIdx;
+                                                    let btnStyle = "border-slate-200 hover:border-indigo-300 hover:bg-slate-50 text-slate-700";
+                                                    
+                                                    if (mcSubmitted) {
+                                                        if (isCorrect) {
+                                                            btnStyle = "bg-emerald-50 border-emerald-500 text-emerald-800 font-medium";
+                                                        } else if (isSelected && !isCorrect) {
+                                                            btnStyle = "bg-rose-50 border-rose-400 text-rose-800";
+                                                        } else {
+                                                            btnStyle = "border-slate-100 text-slate-400 opacity-60";
+                                                        }
+                                                    } else if (isSelected) {
+                                                        btnStyle = "bg-indigo-50 border-indigo-600 text-indigo-900 font-medium shadow-sm";
+                                                    }
+
+                                                    return (
+                                                        <button
+                                                            key={optIdx}
+                                                            onClick={() => handleMcSelect(q.id, optIdx)}
+                                                            className={`text-left p-3 rounded-lg border text-sm transition flex items-start gap-2 ${btnStyle}`}
+                                                        >
+                                                            <span className="font-bold">{String.fromCharCode(65 + optIdx)}.</span>
+                                                            <span>{opt}</span>
+                                                        </button>
+                                                    );
+                                                })}
+                                            </div>
+
+                                            {mcSubmitted && (
+                                                <div className="mt-3 p-3 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-600">
+                                                    <span className="font-semibold text-slate-700">Giải thích: </span>
+                                                    {q.explanation}
+                                                </div>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+
+                                {mcSubmitted && (
+                                    <div className="text-center pt-4">
+                                        <button 
+                                            onClick={() => { setMcSubmitted(false); setMcAnswers({}); }}
+                                            className="bg-slate-700 hover:bg-slate-800 text-white font-medium px-6 py-2 rounded-lg text-sm transition"
+                                        >
+                                            Làm lại Phần I
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+
+                        {/* TAB 2: TRUE / FALSE */}
+                        {activeTab === 'quiz2' && (
+                            <div className="space-y-6">
+                                <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-5 flex flex-col sm:flex-row justify-between items-center gap-4">
+                                    <div>
+                                        <h2 className="text-lg font-bold text-slate-800">Phần II: Trắc Nghiệm Đúng / Sai</h2>
+                                        <p className="text-slate-500 text-sm">Trong mỗi ý a, b, c, d chọn Đúng (Đ) hoặc Sai (S). (6 câu - 3.0 điểm)</p>
+                                    </div>
+                                    {tfSubmitted ? (
+                                        <div className="text-right bg-indigo-50 px-4 py-2 rounded-lg border border-indigo-100">
+                                            <span className="text-xs text-indigo-600 font-semibold block uppercase">Điểm Phần II</span>
+                                            <span className="text-2xl font-black text-indigo-700">{calculateTfScore().toFixed(2)} / 6.0</span>
+                                        </div>
+                                    ) : (
+                                        <button 
+                                            onClick={() => setTfSubmitted(true)}
+                                            className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-5 py-2.5 rounded-lg shadow transition"
+                                        >
+                                            Nộp bài Phần II
+                                        </button>
+                                    )}
+                                </div>
+
+                                <div className="space-y-6">
+                                    {TRUE_FALSE_DATA.map((q) => (
+                                        <div key={q.id} className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm space-y-4">
+                                            <div>
+                                                <h3 className="font-bold text-indigo-700 text-base">{q.title}</h3>
+                                                <p className="text-slate-600 text-sm mt-1">{q.context}</p>
+                                            </div>
+
+                                            <div className="space-y-3">
+                                                {q.items.map((item) => {
+                                                    const userAns = tfAnswers[`${q.id}_${item.key}`];
+                                                    const isAnswered = userAns !== undefined;
+
+                                                    return (
+                                                        <div key={item.key} className="p-3 border rounded-lg bg-slate-50/50 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-sm">
+                                                            <div className="flex-1">
+                                                                <span className="font-bold text-slate-700 mr-2">{item.key})</span>
+                                                                <span className="text-slate-800">{item.text}</span>
+                                                                
+                                                                {tfSubmitted && (
+                                                                    <div className="mt-1 text-xs text-slate-500">
+                                                                        <span className="font-semibold text-slate-600">Đáp án chuẩn: </span>
+                                                                        <span className={item.correct ? "text-emerald-600 font-bold" : "text-rose-600 font-bold"}>
+                                                                            {item.correct ? "ĐÚNG" : "SAI"}
+                                                                        </span> 
+                                                                        <span className="ml-2">({item.exp})</span>
+                                                                    </div>
+                                                                )}
+                                                            </div>
+
+                                                            <div className="flex items-center gap-2 shrink-0">
+                                                                <button
+                                                                    onClick={() => handleTfSelect(q.id, item.key, true)}
+                                                                    className={`px-3 py-1.5 rounded text-xs font-bold transition border ${
+                                                                        userAns === true 
+                                                                            ? (tfSubmitted ? (item.correct ? 'bg-emerald-600 text-white border-emerald-600' : 'bg-rose-600 text-white border-rose-600') : 'bg-indigo-600 text-white border-indigo-600') 
+                                                                            : 'bg-white text-slate-600 border-slate-300 hover:bg-slate-100'
+                                                                    }`}
+                                                                >
+                                                                    Đúng
+                                                                </button>
+                                                                <button
+                                                                    onClick={() => handleTfSelect(q.id, item.key, false)}
+                                                                    className={`px-3 py-1.5 rounded text-xs font-bold transition border ${
+                                                                        userAns === false 
+                                                                            ? (tfSubmitted ? (!item.correct ? 'bg-emerald-600 text-white border-emerald-600' : 'bg-rose-600 text-white border-rose-600') : 'bg-indigo-600 text-white border-indigo-600') 
+                                                                            : 'bg-white text-slate-600 border-slate-300 hover:bg-slate-100'
+                                                                    }`}
+                                                                >
+                                                                    Sai
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    );
+                                                })}
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+
+                                {tfSubmitted && (
+                                    <div className="text-center pt-4">
+                                        <button 
+                                            onClick={() => { setTfSubmitted(false); setTfAnswers({}); }}
+                                            className="bg-slate-700 hover:bg-slate-800 text-white font-medium px-6 py-2 rounded-lg text-sm transition"
+                                        >
+                                            Làm lại Phần II
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+
+                        {/* TAB 3: ESSAY / KIẾN THỨC TRỌNG TÂM */}
+                        {activeTab === 'essay' && (
+                            <div className="space-y-6">
+                                <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
+                                    <h2 className="text-lg font-bold text-slate-800">Phần Tự Luận: Kiến Thức Trọng Tâm & Gợi Ý Trả Lời</h2>
+                                    <p className="text-slate-500 text-sm">Tổng hợp các dạng bài tập tự luận trong đề cương ôn tập giữa kì 1.</p>
+                                </div>
+
+                                <div className="grid grid-cols-1 gap-6">
+                                    {ESSAY_DATA.map((essay) => (
+                                        <div key={essay.id} className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm space-y-4">
+                                            <h3 className="font-bold text-lg text-indigo-700 border-b border-slate-100 pb-2">{essay.title}</h3>
+                                            
+                                            {essay.subtitle && (
+                                                <p className="italic text-slate-600 font-medium text-sm bg-slate-50 p-3 rounded-lg border border-slate-100">{essay.subtitle}</p>
+                                            )}
+
+                                            {/* Câu 1 Format */}
+                                            {essay.content && (
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                                    {essay.content.map((item, i) => (
+                                                        <div key={i} className="p-3 bg-indigo-50/50 rounded-lg border border-indigo-100">
+                                                            <div className="font-bold text-indigo-900 text-sm">{item.label}</div>
+                                                            <div className="text-slate-700 text-sm mt-1">{item.detail}</div>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            )}
+                                            {essay.note && (
+                                                <p className="text-xs text-amber-700 font-semibold bg-amber-50 p-2.5 rounded border border-amber-200">{essay.note}</p>
+                                            )}
+
+                                            {/* Câu 2 Format (Table) */}
+                                            {essay.table && (
+                                                <div className="overflow-x-auto">
+                                                    <table className="min-w-full text-sm border-collapse border border-slate-200">
+                                                        <thead>
+                                                            <tr className="bg-indigo-50 text-indigo-900">
+                                                                <th className="border border-slate-200 px-3 py-2 text-left font-bold">Tên hình chiếu</th>
+                                                                <th className="border border-slate-200 px-3 py-2 text-left font-bold">Hướng chiếu</th>
+                                                                <th className="border border-slate-200 px-3 py-2 text-left font-bold">Vị trí đặt trên bản vẽ</th>
+                                                                <th className="border border-slate-200 px-3 py-2 text-left font-bold">Kích thước thể hiện</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            {essay.table.map((row, i) => (
+                                                                <tr key={i} className="hover:bg-slate-50">
+                                                                    <td className="border border-slate-200 px-3 py-2 font-semibold text-slate-800">{row.name}</td>
+                                                                    <td className="border border-slate-200 px-3 py-2 text-slate-600">{row.direction}</td>
+                                                                    <td className="border border-slate-200 px-3 py-2 text-slate-600">{row.position}</td>
+                                                                    <td className="border border-slate-200 px-3 py-2 text-slate-600 font-medium text-indigo-700">{row.dimensions}</td>
+                                                                </tr>
+                                                            ))}
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            )}
+
+                                            {/* Câu 3 & 6 Parts */}
+                                            {essay.partA && (
+                                                <div className="space-y-3">
+                                                    <div className="font-semibold text-slate-800 text-sm">{essay.partA.title}</div>
+                                                    <ul className="list-disc list-inside space-y-1 text-sm text-slate-700 bg-slate-50 p-3 rounded-lg">
+                                                        {essay.partA.steps ? essay.partA.steps.map((st, i) => <li key={i}>{st}</li>) : null}
+                                                        {essay.partA.items ? essay.partA.items.map((st, i) => <li key={i}>{st}</li>) : null}
+                                                    </ul>
+                                                </div>
+                                            )}
+                                            {essay.partB && (
+                                                <div className="space-y-3">
+                                                    <div className="font-semibold text-slate-800 text-sm">{essay.partB.title}</div>
+                                                    <ul className="list-disc list-inside space-y-1 text-sm text-slate-700 bg-slate-50 p-3 rounded-lg">
+                                                        {essay.partB.items.map((st, i) => <li key={i}>{st}</li>)}
+                                                    </ul>
+                                                </div>
+                                            )}
+
+                                            {/* Câu 4 & 5 Steps Format */}
+                                            {essay.steps && (
+                                                <div className="space-y-2">
+                                                    {essay.steps.map((s, i) => (
+                                                        <div key={i} className="p-3 bg-slate-50 border border-slate-100 rounded-lg text-sm">
+                                                            <span className="font-bold text-indigo-700 mr-2">{s.step}:</span>
+                                                            <span className="text-slate-700">{s.content}</span>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+                    </main>
+
+                    {/* Footer */}
+                    <footer className="bg-slate-800 text-slate-400 text-center py-4 text-xs mt-8">
+                        Ứng dụng ôn tập Công Nghệ 8 - Giữa Kì 1 (2026 - 2027) | THCS Nguyễn Hữu Thọ
+                    </footer>
+                </div>
+            );
+        }
+
+        ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+    </script>
+</body>
+</html>
+
+© 2026 Nhóm giáo viên: Đỗ Tấn Thạnh, Đoàn Thị Thủy Tiên, Trang Thị Thu Minh. Mọi quyền được bảo lưu.
